@@ -1,0 +1,152 @@
+import pygame
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Constants
+WIDTH, HEIGHT = pygame.display.Info().current_w, pygame.display.Info().current_h
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+JET_SPEED = 7
+BULLET_SPEED = 10
+ENEMY_SPEED = 5  # Increase enemy speed
+LIVES = 5
+
+# Setup screen
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
+pygame.display.set_caption("Jet Shooter")
+clock = pygame.time.Clock()
+
+# Jet Class
+class Jet:
+    def __init__(self):
+        self.x = WIDTH // 2
+        self.y = HEIGHT - 100
+        self.width = 40
+        self.height = 40
+        self.speed = JET_SPEED
+        self.lives = LIVES
+        self.score = 0
+
+    def draw(self):
+        pygame.draw.polygon(screen, RED, [(self.x, self.y), (self.x - 20, self.y + 40), (self.x + 20, self.y + 40)])
+
+    def move(self, direction):
+        if direction == "left" and self.x - self.speed > 20:
+            self.x -= self.speed
+        elif direction == "right" and self.x + self.speed < WIDTH - 20:
+            self.x += self.speed
+
+# Bullet Class
+class Bullet:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.speed = BULLET_SPEED
+        self.active = True
+
+    def move(self):
+        self.y -= self.speed
+        if self.y < 0:
+            self.active = False
+
+    def draw(self):
+        pygame.draw.rect(screen, BLUE, (self.x - 2, self.y, 5, 10))
+
+# Enemy Class
+class Enemy:
+    def __init__(self):
+        self.x = random.randint(20, WIDTH - 20)
+        self.y = random.randint(50, HEIGHT // 2)
+        self.size = 30
+        self.speed = ENEMY_SPEED
+        self.dx = random.choice([-1, 1]) * random.uniform(0.5, 1.5)
+        self.dy = random.choice([-1, 1]) * random.uniform(0.5, 1.5)  # Add vertical movement
+
+    def move(self):
+        self.x += self.dx
+        self.y += self.dy
+        if self.x < 20 or self.x > WIDTH - 20:
+            self.dx *= -1
+        if self.y < 20 or self.y > HEIGHT - 20:
+            self.dy *= -1
+
+    def draw(self):
+        pygame.draw.circle(screen, BLUE, (int(self.x), int(self.y)), self.size // 2)
+
+# Game Loop
+jet = Jet()
+bullets = []
+enemies = [Enemy() for _ in range(10)]  # Spawn more enemies
+
+running = True
+while running:
+    screen.fill(BLACK)  # Change background to black
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                running = False
+            if event.key == pygame.K_SPACE:
+                bullets.append(Bullet(jet.x, jet.y))
+    
+    # Movement Handling
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        jet.move("left")
+    if keys[pygame.K_RIGHT]:
+        jet.move("right")
+    
+    # Update and Draw Bullets
+    for bullet in bullets[:]:
+        bullet.move()
+        bullet.draw()
+        if not bullet.active:
+            bullets.remove(bullet)
+    
+    # Update and Draw Enemies
+    for enemy in enemies[:]:
+        enemy.move()
+        enemy.draw()
+        
+        # Collision with Jet
+        if abs(enemy.x - jet.x) < 25 and abs(enemy.y - jet.y) < 30:
+            jet.lives -= 1
+            enemies.remove(enemy)
+            enemies.append(Enemy())
+        
+        # Collision with Bullet
+        for bullet in bullets[:]:
+            if abs(enemy.x - bullet.x) < 20 and abs(enemy.y - bullet.y) < 20:
+                jet.score += 1
+                bullets.remove(bullet)
+                enemies.remove(enemy)
+                enemies.append(Enemy())
+    
+    # Draw Jet
+    jet.draw()
+    
+    # Draw HUD
+    font = pygame.font.Font(None, 36)
+    lives_text = font.render(f"Lives: {jet.lives}", True, (255, 255, 255))
+    score_text = font.render(f"Score: {jet.score}", True, (255, 255, 255))
+    screen.blit(lives_text, (20, 20))
+    screen.blit(score_text, (WIDTH - 150, 20))
+    
+    # Game Over
+    if jet.lives <= 0:
+        screen.fill(BLACK)
+        game_over_text = font.render("GAME OVER! Press ESC to exit.", True, (255, 0, 0))
+        screen.blit(game_over_text, (WIDTH // 2 - 150, HEIGHT // 2))
+        pygame.display.flip()
+        pygame.time.delay(3000)
+        running = False
+    
+    pygame.display.flip()
+    clock.tick(30)
+
+pygame.quit()
