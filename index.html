@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Web App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="calendar">
+            <div class="header">
+                <button id="prevMonth">&lt;</button>
+                <h2 id="currentMonth"></h2>
+                <button id="nextMonth">&gt;</button>
+            </div>
+            <div class="days-grid" id="daysGrid"></div>
+        </div>
+        <div class="clock" id="clock"></div>
+    </div>
+
+    <!-- Popup for adding notes and alarms -->
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <span class="close" id="closePopup">&times;</span>
+            <h3>Add Note and Alarm</h3>
+            <textarea id="noteInput" placeholder="Add a note..."></textarea>
+            <input type="datetime-local" id="alarmInput">
+            <button id="saveNote">Save</button>
+        </div>
+    </div>
+
+    <!-- Alarm Notification Popup -->
+    <div id="alarmPopup" class="popup">
+        <div class="popup-content">
+            <h3>Alarm!</h3>
+            <p id="alarmMessage"></p>
+            <button id="closeAlarm">Close</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
