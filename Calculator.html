@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator</title>
+  <link rel="stylesheet" href="calc_styles.css">
+</head>
+<body>
+  <div class="calculator">
+    <!-- Display Screen -->
+    <div class="display">
+      <input type="text" id="result" readonly>
+    </div>
+
+    <!-- Calculator Buttons -->
+    <div class="buttons">
+      <button onclick="clearDisplay()" class="operator">C</button>
+      <button onclick="deleteLast()" class="operator">DEL</button>
+      <button onclick="appendOperator('/')" class="operator">/</button>
+      <button onclick="appendOperator('*')" class="operator">*</button>
+
+      <button onclick="appendNumber('7')">7</button>
+      <button onclick="appendNumber('8')">8</button>
+      <button onclick="appendNumber('9')">9</button>
+      <button onclick="appendOperator('-')" class="operator">-</button>
+
+      <button onclick="appendNumber('4')">4</button>
+      <button onclick="appendNumber('5')">5</button>
+      <button onclick="appendNumber('6')">6</button>
+      <button onclick="appendOperator('+')" class="operator">+</button>
+
+      <button onclick="appendNumber('1')">1</button>
+      <button onclick="appendNumber('2')">2</button>
+      <button onclick="appendNumber('3')">3</button>
+      <button onclick="calculateResult()" class="equals">=</button>
+
+      <button onclick="appendNumber('0')" class="zero">0</button>
+      <button onclick="appendNumber('.')">.</button>
+    </div>
+  </div>
+
+  <script>
+    // Get the display element
+const display = document.getElementById('result');
+
+// Function to append numbers to the display
+function appendNumber(number) {
+  display.value += number;
+}
+
+// Function to append operators to the display
+function appendOperator(operator) {
+  const lastChar = display.value.slice(-1);
+  if (['+', '-', '*', '/'].includes(lastChar)) {
+    // Replace the last operator if one exists
+    display.value = display.value.slice(0, -1) + operator;
+  } else {
+    display.value += operator;
+  }
+}
+
+// Function to clear the display
+function clearDisplay() {
+  display.value = '';
+}
+
+// Function to delete the last character
+function deleteLast() {
+  display.value = display.value.slice(0, -1);
+}
+
+// Function to calculate the result
+function calculateResult() {
+  try {
+    const result = eval(display.value); // Use eval to calculate the expression
+    display.value = result;
+  } catch (error) {
+    display.value = 'Error';
+  }
+}
+  </script>
+</body>
+</html>
