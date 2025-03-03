@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diary Web App</title>
+  <link rel="stylesheet" href="diary_script.js">
+</head>
+<body>
+  <div class="container">
+    <h1>My Diary</h1>
+
+    <!-- Form to add a diary entry -->
+    <form id="diaryForm">
+      <input type="text" id="title" placeholder="Diary Title" required>
+      <textarea id="content" placeholder="Write your diary entry here..." required></textarea>
+      <button type="submit">Add Entry</button>
+    </form>
+
+    <!-- Table to display diary entries -->
+    <table id="diaryTable">
+      <thead>
+        <tr>
+          <th>Date & Time</th>
+          <th>Title</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Entries will be dynamically added here -->
+      </tbody>
+    </table>
+
+    <!-- Modal to display content -->
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <span id="closeModal">&times;</span>
+        <h2 id="modalTitle"></h2>
+        <p id="modalContent"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Get form, table, and modal elements
+const diaryForm = document.getElementById('diaryForm');
+const diaryTable = document.getElementById('diaryTable').getElementsByTagName('tbody')[0];
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modalTitle');
+const modalContent = document.getElementById('modalContent');
+const closeModal = document.getElementById('closeModal');
+
+// Load saved entries from localStorage
+document.addEventListener('DOMContentLoaded', () => {
+  const savedEntries = JSON.parse(localStorage.getItem('diaryEntries')) || [];
+  savedEntries.forEach(entry => addEntryToTable(entry));
+});
+
+// Handle form submission
+diaryForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  // Get form values
+  const title = document.getElementById('title').value;
+  const content = document.getElementById('content').value;
+  const dateTime = new Date().toLocaleString();
+
+  // Create entry object
+  const entry = { dateTime, title, content };
+
+  // Save entry to localStorage
+  const savedEntries = JSON.parse(localStorage.getItem('diaryEntries')) || [];
+  savedEntries.push(entry);
+  localStorage.setItem('diaryEntries', JSON.stringify(savedEntries));
+
+  // Add entry to table
+  addEntryToTable(entry);
+
+  // Clear form
+  diaryForm.reset();
+});
+
+// Function to add an entry to the table
+function addEntryToTable(entry) {
+  const row = diaryTable.insertRow();
+  row.innerHTML = `
+    <td>${entry.dateTime}</td>
+    <td class="entry-title">${entry.title}</td>
+  `;
+
+  // Add click event to the title cell
+  row.querySelector('.entry-title').addEventListener('click', () => {
+    modalTitle.textContent = entry.title;
+    modalContent.textContent = entry.content;
+    modal.style.display = 'flex';
+  });
+}
+
+// Close modal when the close button is clicked
+closeModal.addEventListener('click', () => {
+  modal.style.display = 'none';
+});
+
+// Close modal when clicking outside the modal
+window.addEventListener('click', (e) => {
+  if (e.target === modal) {
+    modal.style.display = 'none';
+  }
+});
+
+  
+  </script>
+</body>
+</html>
