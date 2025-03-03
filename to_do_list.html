@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>To-Do List</h1>
+
+    <!-- Input and Add Button -->
+    <div class="input-section">
+      <input type="text" id="taskInput" placeholder="Add a new task...">
+      <button id="addTask">Add Task</button>
+    </div>
+
+    <!-- Task List -->
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    // Get DOM elements
+const taskInput = document.getElementById('taskInput');
+const addTask = document.getElementById('addTask');
+const taskList = document.getElementById('taskList');
+
+// Load saved tasks from localStorage
+document.addEventListener('DOMContentLoaded', () => {
+  const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  savedTasks.forEach(task => addTaskToDOM(task));
+});
+
+// Add task when the "Add Task" button is clicked
+addTask.addEventListener('click', () => {
+  const taskText = taskInput.value.trim();
+  if (taskText) {
+    const task = { id: Date.now(), text: taskText, completed: false };
+    saveTask(task);
+    addTaskToDOM(task);
+    taskInput.value = '';
+  }
+});
+
+// Save task to localStorage
+function saveTask(task) {
+  const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  savedTasks.push(task);
+  localStorage.setItem('tasks', JSON.stringify(savedTasks));
+}
+
+// Add task to the DOM
+function addTaskToDOM(task) {
+  const li = document.createElement('li');
+  li.className = 'task';
+  li.dataset.id = task.id;
+
+  if (task.completed) {
+    li.classList.add('completed');
+  }
+
+  li.innerHTML = `
+    <span>${task.text}</span>
+    <div class="actions">
+      <button class="complete">✓</button>
+      <button class="delete">✗</button>
+    </div>
+  `;
+
+  // Add event listeners for complete and delete buttons
+  li.querySelector('.complete').addEventListener('click', () => toggleComplete(task.id));
+  li.querySelector('.delete').addEventListener('click', () => deleteTask(task.id));
+
+  taskList.appendChild(li);
+}
+
+// Toggle task completion
+function toggleComplete(taskId) {
+  const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  const task = savedTasks.find(task => task.id === taskId);
+  if (task) {
+    task.completed = !task.completed;
+    localStorage.setItem('tasks', JSON.stringify(savedTasks));
+    renderTasks();
+  }
+}
+
+// Delete task
+function deleteTask(taskId) {
+  const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  const updatedTasks = savedTasks.filter(task => task.id !== taskId);
+  localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+  renderTasks();
+}
+
+// Render tasks from localStorage
+function renderTasks() {
+  taskList.innerHTML = '';
+  const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  savedTasks.forEach(task => addTaskToDOM(task));
+}
+  </script>
+</body>
+</html>
