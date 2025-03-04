@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expense Tracker</title>
+</head>
+<body>
+    <h1>Expense Tracker</h1>
+    
+    <h2>Set Balance</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="set_balance" value="true">
+        <input type="number" name="balance" placeholder="Enter starting balance" required>
+        <button type="submit">Set Balance</button>
+    </form>
+    <h2>Current Balance: ${{ balance }}</h2>
+    <h2>Add Expense</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="name" placeholder="Expense Name" required>
+        <input type="number" name="amount" placeholder="Amount" required>
+        <button type="submit">Add Expense</button>
+    </form>
+    <h2>Expenses</h2>
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Amount</th>
+            <th>Actions</th>
+        </tr>
+        {% for name, amount in expenses %}
+        <tr>
+            <td>{{ name }}</td>
+            <td>${{ amount }}</td>
+            <td>
+                <form method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="remove_expense" value="{{ forloop.counter0 }}">
+                    <button type="submit">Remove</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="reset" value="true">
+        <button type="submit">Reset All</button>
+        <a class="btn btn-danger btn-flex" style="width:200px" href="/">Home</a><br>
+    </form>
+</body>
+</html>
