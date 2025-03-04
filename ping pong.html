@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ping Pong Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <style>
+    body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #000;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    color: #fff;
+}
+
+.scoreboard {
+    display: flex;
+    justify-content: space-around;
+    width: 800px;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.game-container {
+    position: relative;
+    width: 800px;
+    height: 400px;
+    background-color: #333;
+    border: 2px solid #fff;
+}
+
+.paddle {
+    position: absolute;
+    width: 10px;
+    height: 80px;
+    background-color: #fff;
+}
+
+.left-paddle {
+    left: 10px;
+    top: 160px;
+}
+
+.right-paddle {
+    right: 10px;
+    top: 160px;
+}
+
+.ball {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background-color: #fff;
+    border-radius: 50%;
+}
+
+#end-game-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #ff4444;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#end-game-button:hover {
+    background-color: #cc0000;
+}
+  </style>
+    <div class="scoreboard">
+        <div>Player: <span id="player-score">0</span></div>
+        <div>Computer: <span id="computer-score">0</span></div>
+    </div>
+    <div class="game-container">
+        <div class="paddle left-paddle"></div>
+        <div class="paddle right-paddle"></div>
+        <div class="ball"></div>
+    </div>
+    <button id="end-game-button">End Game</button>
+    <script>
+      const gameContainer = document.querySelector('.game-container');
+const leftPaddle = document.querySelector('.left-paddle');
+const rightPaddle = document.querySelector('.right-paddle');
+const ball = document.querySelector('.ball');
+const playerScoreDisplay = document.getElementById('player-score');
+const computerScoreDisplay = document.getElementById('computer-score');
+const endGameButton = document.getElementById('end-game-button');
+
+let ballX = 400, ballY = 200;
+let ballSpeedX = 2, ballSpeedY = 2; // Slower ball speed
+let playerScore = 0, computerScore = 0;
+const paddleSpeed = 8;
+let gameRunning = true;
+
+// Player paddle movement
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'w' && parseInt(leftPaddle.style.top) > 0) {
+        leftPaddle.style.top = parseInt(leftPaddle.style.top) - paddleSpeed + 'px';
+    }
+    if (e.key === 's' && parseInt(leftPaddle.style.top) < 320) {
+        leftPaddle.style.top = parseInt(leftPaddle.style.top) + paddleSpeed + 'px';
+    }
+});
+
+// Computer paddle movement (with randomness)
+function moveComputerPaddle() {
+    const rightPaddleCenter = parseInt(rightPaddle.style.top) + 10;
+    const ballCenter = ballY + 7.5; // Ball center (ball height is 15px)
+
+    // Add some randomness to make the computer less predictable
+    const reactionOffset = Math.random() * 20 - 10; // Random offset between -10 and 10
+
+    if (rightPaddleCenter < ballCenter + reactionOffset) {
+        rightPaddle.style.top = Math.min(parseInt(rightPaddle.style.top) + paddleSpeed, 320) + 'px';
+    }
+    if (rightPaddleCenter > ballCenter + reactionOffset) {
+        rightPaddle.style.top = Math.max(parseInt(rightPaddle.style.top) - paddleSpeed, 0) + 'px';
+    }
+}
+
+// Update game state
+function update() {
+    if (!gameRunning) return;
+
+    // Update ball position
+    ballX += ballSpeedX;
+    ballY += ballSpeedY;
+
+    // Ball collision with top and bottom walls
+    if (ballY <= 0 || ballY >= 385) {
+        ballSpeedY = -ballSpeedY;
+    }
+
+    // Ball collision with paddles
+    if (ballX <= 20 && ballY >= parseInt(leftPaddle.style.top) && ballY <= parseInt(leftPaddle.style.top) + 80) {
+        ballSpeedX = -ballSpeedX;
+    }
+    if (ballX >= 765 && ballY >= parseInt(rightPaddle.style.top) && ballY <= parseInt(rightPaddle.style.top) + 80) {
+        ballSpeedX = -ballSpeedX;
+    }
+
+    // Ball out of bounds (left or right)
+    if (ballX <= 0) {
+        computerScore++;
+        computerScoreDisplay.textContent = computerScore;
+        resetBall();
+    }
+    if (ballX >= 785) {
+        playerScore++;
+        playerScoreDisplay.textContent = playerScore;
+        resetBall();
+    }
+
+    // Move computer paddle
+    moveComputerPaddle();
+
+    // Update ball position on screen
+    ball.style.left = ballX + 'px';
+    ball.style.top = ballY + 'px';
+
+    requestAnimationFrame(update);
+}
+
+// Reset ball to center
+function resetBall() {
+    ballX = 400;
+    ballY = 200;
+    ballSpeedX = -ballSpeedX; // Alternate direction on reset
+}
+
+// End game button functionality
+endGameButton.addEventListener('click', () => {
+    gameRunning = false; // Stop the game loop
+    resetGame(); // Reset the game state
+    alert('Game ended! Click OK to restart.');
+    gameRunning = true; // Restart the game
+    update(); // Restart the game loop
+});
+
+// Reset game state
+function resetGame() {
+    playerScore = 0;
+    computerScore = 0;
+    playerScoreDisplay.textContent = playerScore;
+    computerScoreDisplay.textContent = computerScore;
+    resetBall();
+    leftPaddle.style.top = '160px';
+    rightPaddle.style.top = '160px';
+}
+
+// Initialize paddles position
+leftPaddle.style.top = '160px';
+rightPaddle.style.top = '160px';
+
+// Start the game loop
+update();
+    </script>
+</body>
+</html>
