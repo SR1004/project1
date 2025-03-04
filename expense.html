@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+    <link rel="stylesheet" href="expence.css">
 <head>
     <title>Expense Tracker</title>
 </head>
 <body>
+    <div id="outer">
     <h1>Expense Tracker</h1>
     
     <h2>Set Balance</h2>
@@ -45,8 +47,9 @@
     <form method="POST">
         {% csrf_token %}
         <input type="hidden" name="reset" value="true">
-        <button type="submit">Reset All</button>
+        <button type="submit">Reset All</button><br>
         <a class="btn btn-danger btn-flex" style="width:200px" href="/">Home</a><br>
     </form>
+    </div>
 </body>
 </html>
